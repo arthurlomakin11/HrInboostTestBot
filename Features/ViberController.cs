@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Viber.Bot.NetCore.Infrastructure;
 using Viber.Bot.NetCore.Models;
 using Viber.Bot.NetCore.RestApi;
@@ -15,20 +14,6 @@ public class ViberController : ControllerBase
     public ViberController(IViberBotApi viberBotApi)
     {
         _viberBotApi = viberBotApi;
-    }
-
-    // The service sets a webhook automatically, but if you want sets him manually then use this
-    [HttpGet]
-    public async Task<IActionResult> Get()
-    {
-        var response = await _viberBotApi.SetWebHookAsync(new ViberWebHook.WebHookRequest("https://7c73-109-207-199-125.ngrok-free.app/viber"));
-
-        if (response.Content.Status == ViberErrorCode.Ok)
-        {
-            return Ok("Viber-bot is active");
-        }
-
-        return BadRequest(response.Content.StatusMessage);
     }
 
     [HttpPost]
