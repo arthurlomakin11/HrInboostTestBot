@@ -1,5 +1,5 @@
-﻿using System.Text.Json;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Viber.Bot.NetCore.Infrastructure;
 using Viber.Bot.NetCore.Models;
 using Viber.Bot.NetCore.RestApi;
@@ -21,7 +21,7 @@ public class ViberController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Get()
     {
-        var response = await _viberBotApi.SetWebHookAsync(new ViberWebHook.WebHookRequest("https://1981-109-207-199-125.ngrok-free.app/viber"));
+        var response = await _viberBotApi.SetWebHookAsync(new ViberWebHook.WebHookRequest("https://7c73-109-207-199-125.ngrok-free.app/viber"));
 
         if (response.Content.Status == ViberErrorCode.Ok)
         {
@@ -32,20 +32,15 @@ public class ViberController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Post()
+    public async Task<IActionResult> Post([FromBody] ViberCallbackData update)
     {
         var str = string.Empty;
 
-        using var reader = new StreamReader(Request.Body);
-        var body = await reader.ReadToEndAsync();
-
-        if (body.Length == 0) return BadRequest();
+        if (update.Event is ViberEventType.Webhook or ViberEventType.Seen or ViberEventType.Delivered)
+        {
+            return Ok();
+        }
         
-        var update = JsonSerializer.Deserialize<ViberCallbackData>(body)!;
-
-        if (update.Event == ViberEventType.Webhook) return Ok();
-        
-        Console.WriteLine(update.Event);
         if (update.Message.Type == ViberMessageType.Text)
         {
             var mess = update.Message as ViberMessage.TextMessage;
